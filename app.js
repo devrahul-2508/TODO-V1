@@ -94,6 +94,21 @@ app.post("/",function(req,res){
     
 });
 
+app.post("/delete",function(req,res){
+    let id = req.body.checkBox;
+
+    Item.deleteOne({_id : id},function(err){
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.log("Successfully deleted item");
+        }
+        res.redirect("/");
+    })
+
+})
+
 
 
 app.listen(3000,function(){
