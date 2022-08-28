@@ -31,6 +31,13 @@ const item3 = new Item({
 
 const defaultItems = [item1,item2,item3];
 
+const listSchema = {
+    name : String,
+    items: [itemsSchema]
+};
+
+const List = mongoose.model("List",listSchema);
+
 
 
 
@@ -78,17 +85,26 @@ app.get("/",function(req,res){
 app.post("/",function(req,res){
 
     var item = req.body.newItem;
-    if(req.body.list == "WorkList"){
-       workItems.push(item);
-       res.redirect("/work");
-    }
-    else{
-        const workItem = new Item({
+    const listName = req.body.list;
+    
+     const workItem = new Item({
             name : item
         })
-        workItem.save()
-        res.redirect("/");
-    }
+
+        if(listName === "Today"){
+            workItem.save()
+            res.redirect("/");
+        }
+        else{
+            List.findOne({name : listName},function(err,foundList){
+                foundList.items.push(workItem);
+                foundList.save();
+                res.redirect("/" + listName)
+            })
+        }
+
+        
+
    
   
     
@@ -109,21 +125,51 @@ app.post("/delete",function(req,res){
 
 })
 
+app.get("/:customListName",function(req,res){
+    const customListName = req.params.customListName;
+
+    if(customListName == 'favicon.ico'){
+        res.status(204).end()
+    }
+    else{
+        console.log(customListName);
+        List.findOne({name : customListName} ,function(err,foundList){
+
+            if(!err){
+                if(!foundList){
+                    //create a new list
+                    const list = new List({
+                        name : customListName,
+                        items: defaultItems
+                    })
+                    list.save();
+                    res.redirect("/"+customListName)
+                   
+                }
+                else{
+                   //show exisiting list
+                   res.render('list',{
+                    listTitle : foundList.name,
+                    newListItem : foundList.items
+                });
+                }
+            }
+            else{
+                console.log(err);
+            }
+        
+          })
+    }
+    
+ 
+
+   
+
+})
+
 
 
 app.listen(3000,function(){
     console.log("Server stared on port 3000");
 });
 
-app.get("/work",function(req,res){
-    res.render("list",{
-        listTitle : "WorkList",
-        newListItem : workItems
-    });
-});
-
-app.post("/work",function(req,res){
-    let item = req.body.newItem;
-    workItems.push(item);
-    res.redirect("/work")
-})
