@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose")
+const _ = require("lodash")
 
 const app = express();
 
@@ -126,12 +127,13 @@ app.post("/delete",function(req,res){
 })
 
 app.get("/:customListName",function(req,res){
-    const customListName = req.params.customListName;
+    let customListName = req.params.customListName;
 
     if(customListName == 'favicon.ico'){
         res.status(204).end()
     }
     else{
+        customListName = _.capitalize(customListName)
         console.log(customListName);
         List.findOne({name : customListName} ,function(err,foundList){
 
