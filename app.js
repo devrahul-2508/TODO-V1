@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose")
+require('dotenv').config()
 const _ = require("lodash")
 
 const app = express();
@@ -9,7 +10,8 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb+srv://admin-rahul:rahul2508@cluster0.hehvlg7.mongodb.net/todolistDB");
+let password = process.env.PASSWORD
+mongoose.connect("mongodb+srv://admin-rahul:"+password+"@cluster0.hehvlg7.mongodb.net/todolistDB");
 
 
 const itemsSchema = {
